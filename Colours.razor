@@ -1,0 +1,148 @@
+﻿@page "/colours"
+
+
+    <style>
+        .container {
+            width: 500px;
+            height: 500px;
+        }
+
+        button {
+            width: 100px;
+            height: 100px;
+        }
+
+        replaybutton {
+            width: 100px;
+            height: 50px; 
+        } 
+
+    </style>
+    <br />
+    <br />
+    <button onClick="history.go(0);" id="replaybutton">Click to Replay!</button>
+    <br />
+    <br />
+    <div class="container" id="colourgame">
+        <h1>Colour matching game! Make sure to click on the NAME and then the corresponding EMOJI!</h1>
+        <div class="row">
+            @foreach (var colour in shuffledColours)
+            {
+                <div class="col-3">
+                    <button @onclick="@(() => ButtonClick(colour))"
+                            type="button" class="btn btn-outline-dark" id="button2">
+                        <h1>@colour</h1>
+                    </button>
+
+                </div>
+            }
+
+            @Message
+        </div>
+    </div>
+
+
+
+      @code {
+
+          string Message = "";
+          //bunch of strings that are put into the containers
+          Dictionary<string, string> colourConnect = new Dictionary<string, string>();
+
+
+          List<string> colourEmoji = new List<string>()
+            {
+                "🔴", "Red",
+                "🟠", "Orange",
+                "🟡", "Yellow",
+                "🟢", "Green",
+                "🔵", "Blue",
+                "🟣", "Purple",
+                "⚪️", "White",
+                "⚫️", "Black",
+            };
+
+
+          List<string> shuffledColours = new List<string>();
+
+
+          protected override void OnInitialized()
+          {
+              SetUpGame();
+          }
+
+
+          //randomises the placement of the colours, links the emoji to the text
+          private void SetUpGame()
+          {
+              Random random = new Random();
+              shuffledColours = colourEmoji
+                  .OrderBy(item => random.Next())
+                  .ToList();
+
+              colourConnect.Add("🔴", "Red");
+              colourConnect.Add("Red", "Red");
+              colourConnect.Add("🟠", "Orange");
+              colourConnect.Add("Orange", "Orange");
+              colourConnect.Add("🟡", "Yellow");
+              colourConnect.Add("Yellow", "Yellow");
+              colourConnect.Add("🟢", "Green");
+              colourConnect.Add("Green", "Green");
+              colourConnect.Add("🔵", "Blue");
+              colourConnect.Add("Blue", "Blue");
+              colourConnect.Add("🟣", "Purple");
+              colourConnect.Add("Purple", "Purple");
+              colourConnect.Add("⚪️", "White");
+              colourConnect.Add("White", "White");
+              colourConnect.Add("⚫️", "Black");
+              colourConnect.Add("Black", "Black");
+
+          }
+
+
+          //matches and deletes containers that have the corresponding emoji and string once clicked on
+          string lastColourFound = string.Empty;
+
+          private void ButtonClick(string colour)
+          {
+              while (string.IsNullOrEmpty(colour))
+              {
+                  return;
+              }
+
+              if (lastColourFound == string.Empty)
+              {
+                  lastColourFound = colourConnect[colour];
+              }
+
+              else if (colourConnect[lastColourFound] == colourConnect[colour])
+              {
+               //   colourConnect[lastColourFound] = string.Empty;
+               //   colourConnect[colour] = string.Empty;
+               
+                  shuffledColours = shuffledColours
+                      .Select(a => a.Replace(lastColourFound, string.Empty))
+                      .Select(a => a.Replace(colour, string.Empty))
+                      .ToList();
+               
+                  lastColourFound = string.Empty;
+                  //when the thing works, its 'red' and then emoji, when it doesn't work, both of them are 'red'
+              }
+
+              else if (colourConnect[lastColourFound] != colourConnect[colour])
+              {
+                  Message = "You made a mistake! Try another combo";
+                  return;
+              }
+
+              else
+              {
+                  colourConnect[lastColourFound] = string.Empty;
+              }
+
+
+
+          }
+
+      }
+      
